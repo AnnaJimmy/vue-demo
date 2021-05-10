@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="root">
+        <div>
+            <div>
+                <p>{{name}}</p>
+                <p>{{message}}</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        const root = document.querySelector('#root');
+        const tempNode = root.cloneNode(true);
+        const regex = /\{\{(.+?)\}\}/g;
+        const data = {
+            name: 'Hello world',
+            message: 'Welcome'
+        }
+        function complier(template, data) {
+            const childNodes = template.childNodes;
+            for (let i = 0; i < childNodes.length; i++) {
+                const type = childNodes[i].nodeType;
+                switch (type) {
+                    case 1: //元素
+                        complier(childNodes[i], data);
+                        break;
+                    case 3: //文本节点
+                        let text = childNodes[i].nodeValue;
+                        text = text.replace(regex, function(_, _g){
+                            return data[_g.trim()]
+                        })
+                        childNodes[i].nodeValue = text;
+                    default:
+                      break;
+                }
+            }
+        }
+        console.log(root)
+        complier(tempNode, data);
+        root.parentNode.replaceChild(tempNode, root)
+        console.log(tempNode)
+    </script>
+</body>
+</html>

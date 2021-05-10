@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="root">
+        <div>
+            <div>
+                <p>{{name}}</p>
+                <p>{{message}}</p>
+            </div>
+        </div>
+        <p>{{name}}---{{message}}</p>
+    </div>
+    <script>
+        const regex = /\{\{(.+?)\}\}/g;
+        function JGVue(options) {
+            this._data = options.data;
+            this._templateDom = document.querySelector(options.el);
+            this._parent = this._templateDom.parentNode;
+            this.render()
+        }
+        JGVue.prototype.render = function(){
+            this.complier()
+        }
+        JGVue.prototype.complier = function(){
+            let realDom = this._templateDom.cloneNode(true);
+            complier(realDom, this._data)
+            this.update(realDom)
+        }
+        JGVue.prototype.update = function(realDom){
+            this._parent.replaceChild(realDom, document.querySelector('#root'));
+        }
+        let app = new JGVue({
+            el: '#root',
+            data: {
+                name: 'JImmy',
+                message: 'Happy'
+            }
+        })
+        function complier(template, data) {
+            const childNodes = template.childNodes;
+            for (let i = 0; i < childNodes.length; i++) {
+                const type = childNodes[i].nodeType;
+                switch (type) {
+                    case 1: //元素
+                        complier(childNodes[i], data);
+                        break;
+                    case 3: //文本节点
+                        let text = childNodes[i].nodeValue;
+                        text = text.replace(regex, function(_, _g){
+                            return data[_g.trim()]
+                        })
+                        childNodes[i].nodeValue = text;
+                    default:
+                      break;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
